@@ -1,7 +1,7 @@
 include_directories(../../gram/include)
 
-add_executable(gram-symbolic-regression
+add_executable(gram-math
         main.cpp
         )
 
-target_link_libraries(gram-symbolic-regression /Users/jansvoboda/Dev/build/gram/src/libgram.a)
+target_link_libraries(gram-math /Users/jansvoboda/Dev/build/gram/src/libgram.a)
