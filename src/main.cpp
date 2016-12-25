@@ -8,14 +8,11 @@
 #include <gram/population/initializer/RandomInitializer.h>
 #include <gram/language/parser/BnfRuleParser.h>
 
-using namespace gram::evolution;
-using namespace gram::individual;
-using namespace gram::population;
-using namespace gram::language;
-using namespace gram::util;
+using namespace gram;
+using namespace std;
 
 class FakeEvaluator : public Evaluator {
-  int evaluate(std::string program) {
+  int evaluate(string program) {
     return 0;
   }
 };
@@ -23,18 +20,18 @@ class FakeEvaluator : public Evaluator {
 class FakeFitnessCalculator : public FitnessCalculator {
  public:
   double calculate(int desired, int actual) {
-    return std::abs(desired - actual);
+    return abs(desired - actual);
   }
 };
 
-std::string loadFile(std::string name) {
-  std::ifstream grammarFile(name);
+string loadFile(string name) {
+  ifstream grammarFile(name);
 
   if (!grammarFile.is_open()) {
     return "";
   }
 
-  std::string content((std::istreambuf_iterator<char>(grammarFile)), std::istreambuf_iterator<char>());
+  string content((istreambuf_iterator<char>(grammarFile)), istreambuf_iterator<char>());
 
   return content;
 }
@@ -44,33 +41,33 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  std::string grammarString = loadFile(argv[1]);
+  string grammarString = loadFile(argv[1]);
 
-  unsigned long max = std::numeric_limits<unsigned long>::max();
+  unsigned long max = numeric_limits<unsigned long>::max();
 
-  std::unique_ptr<NumberGenerator> numberGenerator1 = std::make_unique<TwisterNumberGenerator>(max);
-  std::unique_ptr<NumberGenerator> numberGenerator2 = std::make_unique<TwisterNumberGenerator>(29);
-  std::unique_ptr<NumberGenerator> numberGenerator3 = std::make_unique<TwisterNumberGenerator>(11);
-  std::unique_ptr<NumberGenerator> numberGenerator4 = std::make_unique<TwisterNumberGenerator>(11);
-  std::unique_ptr<BoolGenerator> boolGenerator = std::make_unique<TwisterBoolGenerator>(0.1);
+  unique_ptr<NumberGenerator> numberGenerator1 = make_unique<TwisterNumberGenerator>(max);
+  unique_ptr<NumberGenerator> numberGenerator2 = make_unique<TwisterNumberGenerator>(29);
+  unique_ptr<NumberGenerator> numberGenerator3 = make_unique<TwisterNumberGenerator>(11);
+  unique_ptr<NumberGenerator> numberGenerator4 = make_unique<TwisterNumberGenerator>(11);
+  unique_ptr<BoolGenerator> boolGenerator = make_unique<TwisterBoolGenerator>(0.1);
 
-  TournamentSelector selector(std::move(numberGenerator1));
-  Mutation mutation(std::move(boolGenerator), std::move(numberGenerator2));
-  Crossover crossover(std::move(numberGenerator3));
-  auto generator = std::make_shared<Generator>(selector, crossover, mutation);
+  TournamentSelector selector(move(numberGenerator1));
+  Mutation mutation(move(boolGenerator), move(numberGenerator2));
+  Crossover crossover(move(numberGenerator3));
+  auto generator = make_shared<Generator>(selector, crossover, mutation);
 
   BnfRuleParser parser;
 
-  std::shared_ptr<Grammar> grammar = parser.parse(grammarString);
+  shared_ptr<Grammar> grammar = parser.parse(grammarString);
 
   Mapper mapper(grammar);
-  auto language = std::make_shared<Language>(grammar, mapper);
+  auto language = make_shared<Language>(grammar, mapper);
 
-  RandomInitializer initializer(std::move(numberGenerator4), language, 100);
+  RandomInitializer initializer(move(numberGenerator4), language, 100);
 
   FakeEvaluator evaluator;
   FakeFitnessCalculator calculator;
-  auto processor = std::make_shared<Processor>(evaluator, calculator);
+  auto processor = make_shared<Processor>(evaluator, calculator);
 
   Evolution evolution(processor);
 
@@ -78,7 +75,7 @@ int main(int argc, char **argv) {
 
   Individual result = evolution.run(population, 1470);
 
-  std::cout << result.fitness() << " : " << result.serialize() << std::endl;
+  cout << result.fitness() << " : " << result.serialize() << endl;
 
   return 0;
 }
