@@ -12,14 +12,14 @@ using namespace gram;
 using namespace std;
 
 class FakeEvaluator : public Evaluator {
-  int evaluate(string program) {
+  int evaluate(string program) const {
     return 0;
   }
 };
 
 class FakeFitnessCalculator : public FitnessCalculator {
  public:
-  double calculate(int desired, int actual) {
+  double calculate(int desired, int actual) const {
     return abs(desired - actual);
   }
 };
@@ -66,9 +66,9 @@ int main(int argc, char* argv[]) {
 
   FakeEvaluator evaluator;
   FakeFitnessCalculator calculator;
-  auto processor = make_shared<Processor>(evaluator, calculator);
+  auto processor = make_unique<Processor>(evaluator, calculator);
 
-  Evolution evolution(processor);
+  Evolution evolution(move(processor));
 
   Population population = initializer.initialize(1000, generator);
 
