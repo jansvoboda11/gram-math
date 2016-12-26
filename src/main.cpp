@@ -50,23 +50,23 @@ int main(int argc, char* argv[]) {
   unique_ptr<NumberGenerator> numberGenerator4 = make_unique<TwisterNumberGenerator>(11);
   unique_ptr<BoolGenerator> boolGenerator = make_unique<TwisterBoolGenerator>(0.1);
 
-  TournamentSelector selector(move(numberGenerator1));
-  Mutation mutation(move(boolGenerator), move(numberGenerator2));
-  Crossover crossover(move(numberGenerator3));
-  auto generator = make_shared<Generator>(selector, crossover, mutation);
+  auto selector = make_unique<TournamentSelector>(move(numberGenerator1));
+  auto mutation = make_unique<Mutation>(move(boolGenerator), move(numberGenerator2));
+  auto crossover = make_unique<Crossover>(move(numberGenerator3));
+  auto generator = make_shared<Generator>(move(selector), move(crossover), move(mutation));
 
   BnfRuleParser parser;
 
   shared_ptr<Grammar> grammar = parser.parse(grammarString);
 
-  Mapper mapper(grammar);
-  auto language = make_shared<Language>(grammar, mapper);
+  auto mapper = make_unique<Mapper>(grammar);
+  auto language = make_shared<Language>(grammar, move(mapper));
 
   RandomInitializer initializer(move(numberGenerator4), language, 100);
 
-  FakeEvaluator evaluator;
-  FakeFitnessCalculator calculator;
-  auto processor = make_unique<Processor>(evaluator, calculator);
+  unique_ptr<Evaluator> evaluator = make_unique<FakeEvaluator>();
+  unique_ptr<FitnessCalculator> calculator = make_unique<FakeFitnessCalculator>();
+  auto processor = make_unique<Processor>(move(evaluator), move(calculator));
 
   Evolution evolution(move(processor));
 
