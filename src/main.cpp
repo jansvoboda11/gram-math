@@ -1,12 +1,12 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
-#include <gram/Evolution.h>
-#include <gram/util/number_generator/TwisterNumberGenerator.h>
+#include <gram/language/parser/BnfRuleParser.h>
+#include <gram/population/initializer/RandomInitializer.h>
 #include <gram/population/selector/TournamentSelector.h>
 #include <gram/util/bool_generator/TwisterBoolGenerator.h>
-#include <gram/population/initializer/RandomInitializer.h>
-#include <gram/language/parser/BnfRuleParser.h>
+#include <gram/util/number_generator/TwisterNumberGenerator.h>
+#include <gram/Evolution.h>
 
 using namespace gram;
 using namespace std;
@@ -44,7 +44,6 @@ int main(int argc, char **argv) {
   string grammarString = loadFile(argv[1]);
 
   unsigned long max = numeric_limits<unsigned long>::max();
-
   unique_ptr<NumberGenerator> numberGenerator1 = make_unique<TwisterNumberGenerator>(max);
   unique_ptr<NumberGenerator> numberGenerator2 = make_unique<TwisterNumberGenerator>(29);
   unique_ptr<NumberGenerator> numberGenerator3 = make_unique<TwisterNumberGenerator>(11);
