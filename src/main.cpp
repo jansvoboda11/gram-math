@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 
   RandomInitializer initializer(move(numberGenerator4), language, 100);
 
-  auto evaluator = make_unique<FakeEvaluator>();
+  unique_ptr<Evaluator> evaluator = make_unique<FakeEvaluator>();
 
   Evolution evolution(move(evaluator));
 
