@@ -12,15 +12,8 @@ using namespace gram;
 using namespace std;
 
 class FakeEvaluator : public Evaluator {
-  int evaluate(string program) const {
+  double evaluate(string program) const {
     return 0;
-  }
-};
-
-class FakeFitnessCalculator : public FitnessCalculator {
- public:
-  double calculate(int desired, int actual) const {
-    return abs(desired - actual);
   }
 };
 
@@ -53,26 +46,23 @@ int main(int argc, char* argv[]) {
   auto selector = make_unique<TournamentSelector>(move(numberGenerator1));
   auto mutation = make_unique<Mutation>(move(boolGenerator), move(numberGenerator2));
   auto crossover = make_unique<Crossover>(move(numberGenerator3));
-  auto generator = make_shared<Generator>(move(selector), move(crossover), move(mutation));
+  auto reproducer = make_shared<Reproducer>(move(selector), move(crossover), move(mutation));
 
   BnfRuleParser parser;
 
-  shared_ptr<Grammar> grammar = parser.parse(grammarString);
-
+  auto grammar = make_shared<Grammar>(parser.parse(grammarString));
   auto mapper = make_unique<Mapper>(grammar);
   auto language = make_shared<Language>(grammar, move(mapper));
 
   RandomInitializer initializer(move(numberGenerator4), language, 100);
 
-  unique_ptr<Evaluator> evaluator = make_unique<FakeEvaluator>();
-  unique_ptr<FitnessCalculator> calculator = make_unique<FakeFitnessCalculator>();
-  auto processor = make_unique<Processor>(move(evaluator), move(calculator));
+  auto evaluator = make_unique<FakeEvaluator>();
 
-  Evolution evolution(move(processor));
+  Evolution evolution(move(evaluator));
 
-  Population population = initializer.initialize(1000, generator);
+  Population population = initializer.initialize(1000, reproducer);
 
-  Individual result = evolution.run(population, 1470);
+  Individual result = evolution.run(population);
 
   cout << result.fitness() << " : " << result.serialize() << endl;
 
