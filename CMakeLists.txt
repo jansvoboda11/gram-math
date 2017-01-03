@@ -12,6 +12,7 @@ ExternalProject_Add(gram
         GIT_REPOSITORY https://github.com/jansvoboda11/gram
         GIT_TAG master
         UPDATE_COMMAND ${GIT_EXECUTABLE} pull
+        INSTALL_COMMAND ""
         )
 
 link_directories(${gram-math_SOURCE_DIR}/lib/gram/src/gram-build/src)
