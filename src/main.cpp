@@ -50,11 +50,9 @@ int main(int argc, char* argv[]) {
 
   BnfRuleParser parser;
 
-  auto grammar = make_shared<Grammar>(parser.parse(grammarString));
-  auto mapper = make_unique<Mapper>(grammar);
-  auto language = make_shared<Language>(grammar, move(mapper));
+  auto grammar = make_shared<ContextFreeGrammar>(parser.parse(grammarString));
 
-  RandomInitializer initializer(move(numberGenerator4), language, 100);
+  RandomInitializer initializer(move(numberGenerator4), grammar, 100);
 
   unique_ptr<Evaluator> evaluator = make_unique<FakeEvaluator>();
 
