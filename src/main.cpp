@@ -11,13 +11,65 @@
 using namespace gram;
 using namespace std;
 
+string execute(const string& command) {
+  FILE *pipe = popen(command.c_str(), "r");
+
+  if (!pipe) {
+    throw runtime_error("Could not open command line.");
+  }
+
+  string result;
+  char buffer[128];
+
+  while (fgets(buffer, 128, pipe)) {
+    result += buffer;
+  }
+
+  pclose(pipe);
+  return result;
+}
+
 class FakeEvaluator : public Evaluator {
   double evaluate(string program) const {
-    return 0;
+    if (program.length() > 40) {
+      return 1000.0;
+    }
+
+    // y = x * x + x + 1
+
+    double result1 = run(program, -10.0);
+    double result2 = run(program,  -5.0);
+    double result3 = run(program,   0.0);
+    double result4 = run(program,   5.0);
+    double result5 = run(program,  10.0);
+    double fitness = abs(91.0 - result1) + abs(21.00 - result2) + abs(1.0 - result3) + abs(31.0 - result4) + abs(111.0 - result5);
+
+    cout << "program: ";
+    cout << program << endl;
+    cout << "results: ";
+    cout << to_string(result1) << ", ";
+    cout << to_string(result2) << ", ";
+    cout << to_string(result3) << ", ";
+    cout << to_string(result4) << ", ";
+    cout << to_string(result5) << endl;
+    cout << "fitness: ";
+    cout << to_string(fitness) << endl;
+
+    return fitness;
+  }
+
+  double run(string program, double x) const {
+    string output = execute("python3 -c \"x = " + to_string(x) + "; print(" + program + ")\"");
+
+    try {
+      return stod(output);
+    } catch (...) {
+      return 1000.0;
+    }
   }
 };
 
-string loadFile(string name) {
+string loadFile(const string& name) {
   ifstream grammarFile(name);
 
   if (!grammarFile.is_open()) {
@@ -58,11 +110,11 @@ int main(int argc, char* argv[]) {
 
   Evolution evolution(move(evaluator));
 
-  Population population = initializer.initialize(1000, reproducer);
+  Population population = initializer.initialize(20, reproducer);
 
   Individual result = evolution.run(population);
 
-  cout << result.fitness() << " : " << result.serialize() << endl;
+  cout << "result: " << result.fitness() << " : " << result.serialize() << endl;
 
   return 0;
 }
