@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
   unique_ptr<NumberGenerator> numberGenerator2 = make_unique<TwisterNumberGenerator>(29);
   unique_ptr<NumberGenerator> numberGenerator3 = make_unique<TwisterNumberGenerator>(11);
   unique_ptr<NumberGenerator> numberGenerator4 = make_unique<TwisterNumberGenerator>(11);
-  unique_ptr<BoolGenerator> boolGenerator = make_unique<TwisterBoolGenerator>(0.1);
+  unique_ptr<BoolGenerator> boolGenerator = make_unique<TwisterBoolGenerator>(1.0);
 
   auto selector = make_unique<TournamentSelector>(move(numberGenerator1));
   auto mutation = make_unique<Mutation>(move(boolGenerator), move(numberGenerator2));
@@ -104,13 +104,13 @@ int main(int argc, char* argv[]) {
 
   auto grammar = make_shared<ContextFreeGrammar>(parser.parse(grammarString));
 
-  RandomInitializer initializer(move(numberGenerator4), grammar, 100);
+  RandomInitializer initializer(move(numberGenerator4), grammar, 30);
 
   unique_ptr<Evaluator> evaluator = make_unique<FakeEvaluator>();
 
   Evolution evolution(move(evaluator));
 
-  Population population = initializer.initialize(20, reproducer);
+  Population population = initializer.initialize(40, reproducer);
 
   Individual result = evolution.run(population);
 
