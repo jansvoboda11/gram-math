@@ -35,25 +35,22 @@ class FakeEvaluator : public Evaluator {
       return 1000.0;
     }
 
-    // y = x * x + x + 1
+    // y = x^4 + x^3 + x^2 + x + 1
 
-    double result1 = run(program, -10.0);
-    double result2 = run(program,  -5.0);
-    double result3 = run(program,   0.0);
-    double result4 = run(program,   5.0);
-    double result5 = run(program,  10.0);
-    double fitness = abs(91.0 - result1) + abs(21.00 - result2) + abs(1.0 - result3) + abs(31.0 - result4) + abs(111.0 - result5);
+    vector<double> inputs{-10.0, -5.0, 0.0, 5.0, 10.0};
+    vector<double> correctResults{9091.0, 521.0, 1.0, 781.0, 11111.0};
+    double fitness = 0.0;
+
+    for (unsigned long i = 0; i < inputs.size(); i++) {
+      double result = run(program, inputs[i]);
+
+      fitness += abs(correctResults[i] - result);
+    }
 
     cout << "program: ";
     cout << program << endl;
-    cout << "results: ";
-    cout << to_string(result1) << ", ";
-    cout << to_string(result2) << ", ";
-    cout << to_string(result3) << ", ";
-    cout << to_string(result4) << ", ";
-    cout << to_string(result5) << endl;
     cout << "fitness: ";
-    cout << to_string(fitness) << endl;
+    cout << to_string(fitness) << endl << endl;
 
     return fitness;
   }
@@ -104,13 +101,13 @@ int main(int argc, char* argv[]) {
 
   auto grammar = make_shared<ContextFreeGrammar>(parser.parse(grammarString));
 
-  RandomInitializer initializer(move(numberGenerator4), grammar, 30);
+  RandomInitializer initializer(move(numberGenerator4), grammar, 50);
 
   unique_ptr<Evaluator> evaluator = make_unique<FakeEvaluator>();
 
   Evolution evolution(move(evaluator));
 
-  Population population = initializer.initialize(40, reproducer);
+  Population population = initializer.initialize(60, reproducer);
 
   Individual result = evolution.run(population);
 
