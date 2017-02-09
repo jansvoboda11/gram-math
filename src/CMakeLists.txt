@@ -6,4 +6,4 @@ add_executable(gram-math
 
 add_dependencies(gram-math gram)
 
-target_link_libraries(gram-math libgram.a)
+target_link_libraries(gram-math ${gram-math_SOURCE_DIR}/lib/gram/src/gram-build/src/libgram.a)

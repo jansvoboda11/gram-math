@@ -11,10 +11,9 @@ ExternalProject_Add(gram
         PREFIX ${gram-math_SOURCE_DIR}/lib/gram
         GIT_REPOSITORY https://github.com/jansvoboda11/gram
         GIT_TAG master
-        UPDATE_COMMAND ${GIT_EXECUTABLE} pull
+        UPDATE_COMMAND ""
         INSTALL_COMMAND ""
+        BUILD_ALWAYS 1
         )
-
-link_directories(${gram-math_SOURCE_DIR}/lib/gram/src/gram-build/src)
 
 add_subdirectory(src)
