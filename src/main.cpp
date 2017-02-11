@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <gram/individual/operator/OnePointCrossover.h>
 #include <gram/language/parser/BnfRuleParser.h>
 #include <gram/population/initializer/RandomInitializer.h>
 #include <gram/population/selector/TournamentSelector.h>
@@ -85,16 +86,15 @@ int main(int argc, char* argv[]) {
 
   string grammarString = loadFile(argv[1]);
 
-  unsigned long max = numeric_limits<unsigned long>::max();
-  unique_ptr<NumberGenerator> numberGenerator1 = make_unique<TwisterNumberGenerator>(max);
-  unique_ptr<NumberGenerator> numberGenerator2 = make_unique<TwisterNumberGenerator>(29);
-  unique_ptr<NumberGenerator> numberGenerator3 = make_unique<TwisterNumberGenerator>(11);
-  unique_ptr<NumberGenerator> numberGenerator4 = make_unique<TwisterNumberGenerator>(11);
+  unique_ptr<NumberGenerator> numberGenerator1 = make_unique<TwisterNumberGenerator>();
+  unique_ptr<NumberGenerator> numberGenerator2 = make_unique<TwisterNumberGenerator>();
+  unique_ptr<NumberGenerator> numberGenerator3 = make_unique<TwisterNumberGenerator>();
+  unique_ptr<NumberGenerator> numberGenerator4 = make_unique<TwisterNumberGenerator>();
   unique_ptr<BoolGenerator> boolGenerator = make_unique<TwisterBoolGenerator>(1.0);
 
   auto selector = make_unique<TournamentSelector>(move(numberGenerator1));
   auto mutation = make_unique<Mutation>(move(boolGenerator), move(numberGenerator2));
-  auto crossover = make_unique<Crossover>(move(numberGenerator3));
+  auto crossover = make_unique<OnePointCrossover>(move(numberGenerator3));
   auto reproducer = make_shared<Reproducer>(move(selector), move(crossover), move(mutation));
 
   BnfRuleParser parser;
