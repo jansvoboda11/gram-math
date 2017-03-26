@@ -87,11 +87,11 @@ int main(int argc, char* argv[]) {
 
   string grammarString = loadFile(argv[1]);
 
-  unique_ptr<NumberGenerator> numberGenerator1 = make_unique<TwisterNumberGenerator>();
-  unique_ptr<NumberGenerator> numberGenerator2 = make_unique<TwisterNumberGenerator>();
-  unique_ptr<NumberGenerator> numberGenerator3 = make_unique<TwisterNumberGenerator>();
-  unique_ptr<NumberGenerator> numberGenerator4 = make_unique<TwisterNumberGenerator>();
-  unique_ptr<BoolGenerator> boolGenerator = make_unique<TwisterBoolGenerator>(0.1);
+  auto numberGenerator1 = make_unique<TwisterNumberGenerator>();
+  auto numberGenerator2 = make_unique<TwisterNumberGenerator>();
+  auto numberGenerator3 = make_unique<TwisterNumberGenerator>();
+  auto numberGenerator4 = make_unique<TwisterNumberGenerator>();
+  auto boolGenerator = make_unique<TwisterBoolGenerator>(1.0);
 
   auto selector = make_unique<TournamentSelector>(move(numberGenerator1));
   auto mutation = make_unique<NumberMutation>(move(boolGenerator), move(numberGenerator2));
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
 
   RandomInitializer initializer(move(numberGenerator4), grammar, 50);
 
-  unique_ptr<Evaluator> evaluator = make_unique<FakeEvaluator>();
+  auto evaluator = make_unique<FakeEvaluator>();
 
   Evolution evolution(move(evaluator));
 
