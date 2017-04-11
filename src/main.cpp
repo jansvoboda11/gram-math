@@ -1,8 +1,10 @@
 #include <fstream>
 #include <iostream>
 
+#include <gram/evaluation/driver/SingleThreadDriver.h>
 #include <gram/individual/crossover/OnePointCrossover.h>
 #include <gram/individual/mutation/NumberMutation.h>
+#include <gram/language/mapper/ContextFreeMapper.h>
 #include <gram/language/parser/BnfRuleParser.h>
 #include <gram/population/initializer/RandomInitializer.h>
 #include <gram/population/selector/TournamentSelector.h>
@@ -33,21 +35,74 @@ string execute(const string& command) {
 }
 
 class FakeEvaluator : public Evaluator {
-  double evaluate(string program) {
+ public:
+  FakeEvaluator(shared_ptr<ContextFreeMapper> mapper) : mapper(mapper) {};
+
+  double evaluate(Individual& individual) {
+    string program = individual.serialize(*mapper);
+
     if (program.length() > 40) {
       return 1000.0;
     }
 
-    // y = x^4 + x^3 + x^2 + x + 1
+    // y = x^4 + x^3 + x^2 + x
 
-    vector<double> inputs{-10.0, -5.0, 0.0, 5.0, 10.0};
-    vector<double> correctResults{9091.0, 521.0, 1.0, 781.0, 11111.0};
+    vector<double> inputs{
+      -1.0,
+      -0.9,
+      -0.8,
+      -0.7,
+      -0.6,
+      -0.5,
+      -0.4,
+      -0.3,
+      -0.2,
+      -0.1,
+       0.0,
+       0.1,
+       0.2,
+       0.3,
+       0.4,
+       0.5,
+       0.6,
+       0.7,
+       0.8,
+       0.9,
+       1.0
+    };
+
+    vector<double> correctResults{
+       0.0000,
+      -0.1629,
+      -0.2624,
+      -0.3129,
+      -0.3264,
+      -0.3125,
+      -0.2784,
+      -0.2289,
+      -0.1664,
+      -0.0909,
+       0.0000,
+       0.1111,
+       0.2496,
+       0.4251,
+       0.6496,
+       0.9375,
+       1.3056,
+       1.7731,
+       2.3616,
+       3.0951,
+       4.0000
+    };
+
     double fitness = 0.0;
 
     for (unsigned long i = 0; i < inputs.size(); i++) {
       double result = run(program, inputs[i]);
 
-      fitness += abs(correctResults[i] - result);
+      double diff = correctResults[i] - result;
+
+      fitness += diff * diff;
     }
 
     cout << "program: ";
@@ -67,6 +122,9 @@ class FakeEvaluator : public Evaluator {
       return 1000.0;
     }
   }
+
+ private:
+  shared_ptr<ContextFreeMapper> mapper;
 };
 
 string loadFile(const string& name) {
@@ -102,19 +160,23 @@ int main(int argc, char* argv[]) {
   BnfRuleParser parser;
 
   auto grammar = make_shared<ContextFreeGrammar>(parser.parse(grammarString));
+  auto mapper = make_shared<ContextFreeMapper>(grammar, 3);
 
-  RandomInitializer initializer(move(numberGenerator4), grammar, 50);
+  RandomInitializer initializer(move(numberGenerator4), 200);
 
-  auto evaluator = make_unique<FakeEvaluator>();
+  auto evaluator = make_unique<FakeEvaluator>(mapper);
+  auto evaluationDriver = make_unique<SingleThreadDriver>(move(evaluator));
   auto logger = make_unique<NullLogger>();
 
-  Evolution evolution(move(evaluator), move(logger));
+  Evolution evolution(move(evaluationDriver), move(logger));
 
-  Population population = initializer.initialize(200, reproducer);
+  Population population = initializer.initialize(500, reproducer);
 
-  Individual result = evolution.run(population);
+  Individual result = evolution.run(population, [](Population& currentPopulation) -> bool {
+    return currentPopulation.bestFitness() < 0.00001;
+  });
 
-  cout << "result: " << result.fitness() << " : " << result.serialize() << endl;
+  cout << "result: " << result.getFitness() << " : " << result.serialize(*mapper) << endl;
 
   return 0;
 }

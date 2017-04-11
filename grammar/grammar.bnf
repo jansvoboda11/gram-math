@@ -1,6 +1,3 @@
-<program> ::= <expression>
-<expression> ::= "(" <expression> <operator> <expression> ")" | <operand>
-<operand> ::= <digit> | <variable>
-<digit> ::= "1"
-<variable> ::= "x"
-<operator> ::= "+" | "*"
+<expr> ::= "(" <expr> <op> <expr> ")" | <var>
+<op> ::= "+" | "-" | "*"
+<var> ::= "x" | "1"
