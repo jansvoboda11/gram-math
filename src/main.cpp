@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
   RandomInitializer initializer(move(numberGenerator4), 200);
 
   auto evaluator = make_unique<MathEvaluator>(mapper);
-  auto evaluationDriver = make_unique<MultiThreadDriver>(move(evaluator), 8);
+  auto evaluationDriver = make_unique<SingleThreadDriver>(move(evaluator));
   auto logger = make_unique<NullLogger>();
 
   Evolution evolution(move(evaluationDriver), move(logger));
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
   Population population = initializer.initialize(500, reproducer);
 
   Individual result = evolution.run(population, [](Population& currentPopulation) -> bool {
-    return currentPopulation.bestFitness() < 0.00001;
+    return currentPopulation.number() >= 101 || currentPopulation.bestFitness() < 0.00001;
   });
 
   cout << "result: " << result.getFitness() << " : " << result.serialize(*mapper) << endl;
