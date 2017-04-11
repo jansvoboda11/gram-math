@@ -1,6 +1,8 @@
 include_directories(../lib/gram/src/gram/include)
 
 add_executable(gram-math
+        MathEvaluator.cpp
+        MathEvaluator.h
         main.cpp
         )
 
