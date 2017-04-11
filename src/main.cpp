@@ -9,9 +9,8 @@
 #include <gram/language/parser/BnfRuleParser.h>
 #include <gram/population/initializer/RandomInitializer.h>
 #include <gram/population/selector/TournamentSelector.h>
-#include <gram/util/bool_generator/TwisterBoolGenerator.h>
 #include <gram/util/logger/NullLogger.h>
-#include <gram/util/number_generator/TwisterNumberGenerator.h>
+#include <gram/util/number_generator/MinimalNumberGenerator.h>
 #include <gram/Evolution.h>
 
 #include "MathEvaluator.h"
@@ -38,11 +37,12 @@ int main(int argc, char* argv[]) {
 
   string grammarString = loadFile(argv[1]);
 
-  auto numberGenerator1 = make_unique<TwisterNumberGenerator>();
-  auto numberGenerator2 = make_unique<TwisterNumberGenerator>();
-  auto numberGenerator3 = make_unique<TwisterNumberGenerator>();
-  auto numberGenerator4 = make_unique<TwisterNumberGenerator>();
-  auto boolGenerator = make_unique<TwisterBoolGenerator>(1.0);
+  auto numberGenerator1 = make_unique<MinimalNumberGenerator>();
+  auto numberGenerator2 = make_unique<MinimalNumberGenerator>();
+  auto numberGenerator3 = make_unique<MinimalNumberGenerator>();
+  auto numberGenerator4 = make_unique<MinimalNumberGenerator>();
+  auto numberGenerator5 = make_unique<MinimalNumberGenerator>();
+  auto boolGenerator = make_unique<BoolGenerator>(move(numberGenerator5), 1.0);
 
   auto selector = make_unique<TournamentSelector>(5, move(numberGenerator1));
   auto mutation = make_unique<NumberMutation>(move(boolGenerator), move(numberGenerator2));
