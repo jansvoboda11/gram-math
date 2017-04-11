@@ -11,6 +11,7 @@ class MathEvaluator : public gram::MultiThreadEvaluator {
   std::unique_ptr<gram::MultiThreadEvaluator> clone();
  private:
   std::shared_ptr<gram::ContextFreeMapper> mapper;
+  std::unordered_map<std::string, double> storedFitness;
 };
 
 #endif // GRAM_MATH_EVALUATOR

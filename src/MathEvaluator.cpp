@@ -14,8 +14,10 @@ MathEvaluator::MathEvaluator(std::shared_ptr<gram::ContextFreeMapper> mapper) :m
 double MathEvaluator::evaluate(Individual& individual) {
   string program = individual.serialize(*mapper);
 
-  if (program.length() > 40) {
-    return 1000.0;
+  double& fitness = storedFitness[program];
+
+  if (fitness) {
+    return fitness;
   }
 
   // y = x^4 + x^3 + x^2 + x
@@ -68,7 +70,7 @@ double MathEvaluator::evaluate(Individual& individual) {
        4.0000,
   };
 
-  double fitness = 0.0;
+  fitness = 0.0;
 
   for (unsigned long i = 0; i < inputs.size(); i++) {
     te_variable variables[] = {{"x", &inputs[i]}};
