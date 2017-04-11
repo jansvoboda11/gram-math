@@ -16,4 +16,14 @@ ExternalProject_Add(gram
         BUILD_ALWAYS 1
         )
 
+ExternalProject_Add(tinyexpr
+        PREFIX ${gram-math_SOURCE_DIR}/lib/tinyexpr
+        GIT_REPOSITORY https://github.com/codeplea/tinyexpr
+        GIT_TAG master
+        CONFIGURE_COMMAND ""
+        UPDATE_COMMAND ""
+        INSTALL_COMMAND ""
+        BUILD_COMMAND ""
+        )
+
 add_subdirectory(src)

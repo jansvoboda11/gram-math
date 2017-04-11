@@ -11,8 +11,6 @@ class MathEvaluator : public gram::MultiThreadEvaluator {
   std::unique_ptr<gram::MultiThreadEvaluator> clone();
  private:
   std::shared_ptr<gram::ContextFreeMapper> mapper;
-  double run(std::string program, double x);
-  std::string execute(const std::string& command);
 };
 
 #endif // GRAM_MATH_EVALUATOR

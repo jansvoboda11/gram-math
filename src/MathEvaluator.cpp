@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <tinyexpr.h>
+
 using namespace gram;
 using namespace std;
 
@@ -69,49 +71,27 @@ double MathEvaluator::evaluate(Individual& individual) {
   double fitness = 0.0;
 
   for (unsigned long i = 0; i < inputs.size(); i++) {
-    double result = run(program, inputs[i]);
+    te_variable variables[] = {{"x", &inputs[i]}};
+
+    int error;
+
+    te_expr* expression = te_compile(program.c_str(), variables, 2, &error);
+
+    if (!expression) {
+      return 1000;
+    }
+
+    double result = te_eval(expression);
+    te_free(expression);
 
     double diff = correctResults[i] - result;
 
     fitness += diff * diff;
   }
 
-  cout << "program: ";
-  cout << program << endl;
-  cout << "fitness: ";
-  cout << to_string(fitness) << endl << endl;
-
   return fitness;
 }
 
 std::unique_ptr<MultiThreadEvaluator> MathEvaluator::clone() {
   return make_unique<MathEvaluator>(mapper);
-}
-
-double MathEvaluator::run(string program, double x) {
-  string output = execute("python3 -c \"x = " + to_string(x) + "; print(" + program + ")\"");
-
-  try {
-    return stod(output);
-  } catch (...) {
-    return 1000.0;
-  }
-}
-
-string MathEvaluator::execute(const string& command) {
-  FILE *pipe = popen(command.c_str(), "r");
-
-  if (!pipe) {
-    throw runtime_error("Could not open command line.");
-  }
-
-  string result;
-  char buffer[128];
-
-  while (fgets(buffer, 128, pipe)) {
-    result += buffer;
-  }
-
-  pclose(pipe);
-  return result;
 }
