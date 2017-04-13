@@ -1,4 +1,3 @@
-#include <fstream>
 #include <iostream>
 
 #include <gram/evaluation/driver/MultiThreadDriver.h>
@@ -6,7 +5,6 @@
 #include <gram/individual/crossover/OnePointCrossover.h>
 #include <gram/individual/mutation/FastCodonMutation.h>
 #include <gram/language/mapper/ContextFreeMapper.h>
-#include <gram/language/parser/BnfRuleParser.h>
 #include <gram/population/initializer/RandomInitializer.h>
 #include <gram/population/selector/TournamentSelector.h>
 #include <gram/util/logger/NullLogger.h>
@@ -18,26 +16,65 @@
 using namespace gram;
 using namespace std;
 
-string loadFile(const string& name) {
-  ifstream grammarFile(name);
+int main() {
+//  <expr> ::= "(" <expr> <op> <expr> ")" | <var>
+//  <op> ::= "+" | "-" | "*"
+//  <var> ::= "x" | "1"
+  auto expr = make_shared<Rule>("expr");
+  auto op = make_shared<Rule>("op");
+  auto var = make_shared<Rule>("var");
 
-  if (!grammarFile.is_open()) {
-    return "";
-  }
+  auto exprNonTerminal = make_shared<NonTerminal>(expr);
+  auto opNonTerminal = make_shared<NonTerminal>(op);
+  auto varNonTerminal = make_shared<NonTerminal>(var);
 
-  string content((istreambuf_iterator<char>(grammarFile)), istreambuf_iterator<char>());
+  auto leftBracket = make_shared<Terminal>("(");
+  auto rightBracket = make_shared<Terminal>(")");
+  auto plus = make_shared<Terminal>("+");
+  auto minus = make_shared<Terminal>("-");
+  auto asterisk = make_shared<Terminal>("*");
+  auto x = make_shared<Terminal>("x");
+  auto one = make_shared<Terminal>("1");
 
-  return content;
-}
+  auto exprOption1 = make_shared<Option>();
+  auto exprOption2 = make_shared<Option>();
+  auto opOption1 = make_shared<Option>();
+  auto opOption2 = make_shared<Option>();
+  auto opOption3 = make_shared<Option>();
+  auto varOption1 = make_shared<Option>();
+  auto varOption2 = make_shared<Option>();
 
-int main(int argc, char* argv[]) {
-  if (argc != 2) {
-    return 1;
-  }
+  expr->addOption(exprOption1);
+  expr->addOption(exprOption2);
 
-  string grammarString = loadFile(argv[1]);
+  op->addOption(opOption1);
+  op->addOption(opOption2);
+  op->addOption(opOption3);
 
-  // y = x^4 + x^3 + x^2 + x
+  var->addOption(varOption1);
+  var->addOption(varOption2);
+
+  exprOption1->addTerminal(leftBracket);
+  exprOption1->addNonTerminal(exprNonTerminal);
+  exprOption1->addNonTerminal(opNonTerminal);
+  exprOption1->addNonTerminal(exprNonTerminal);
+  exprOption1->addTerminal(rightBracket);
+
+  exprOption2->addNonTerminal(varNonTerminal);
+
+  opOption1->addTerminal(plus);
+  opOption2->addTerminal(minus);
+  opOption3->addTerminal(asterisk);
+
+  varOption1->addTerminal(x);
+  varOption2->addTerminal(one);
+
+  auto grammar = make_shared<ContextFreeGrammar>();
+  grammar->addRule(expr);
+  grammar->addRule(op);
+  grammar->addRule(var);
+
+//  y = x^4 + x^3 + x^2 + x
   vector<pair<double, double>> inputsOutputs{
       {-1.0,  0.0000},
       {-0.9, -0.1629},
@@ -74,9 +111,6 @@ int main(int argc, char* argv[]) {
   auto crossover = make_unique<OnePointCrossover>(move(numberGenerator3));
   auto reproducer = make_shared<Reproducer>(move(selector), move(crossover), move(mutation));
 
-  BnfRuleParser parser;
-
-  auto grammar = make_shared<ContextFreeGrammar>(parser.parse(grammarString));
   auto mapper = make_shared<ContextFreeMapper>(grammar, 3);
 
   RandomInitializer initializer(move(numberGenerator4), 200);
