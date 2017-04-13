@@ -1,7 +1,5 @@
 #include "MathEvaluator.h"
 
-#include <iostream>
-
 #include <tinyexpr.h>
 
 using namespace gram;
