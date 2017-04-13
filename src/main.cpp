@@ -37,6 +37,31 @@ int main(int argc, char* argv[]) {
 
   string grammarString = loadFile(argv[1]);
 
+  // y = x^4 + x^3 + x^2 + x
+  vector<pair<double, double>> inputsOutputs{
+      {-1.0,  0.0000},
+      {-0.9, -0.1629},
+      {-0.8, -0.2624},
+      {-0.7, -0.3129},
+      {-0.6, -0.3264},
+      {-0.5, -0.3125},
+      {-0.4, -0.2784},
+      {-0.3, -0.2289},
+      {-0.2, -0.1664},
+      {-0.1, -0.0909},
+      { 0.0,  0.0000},
+      { 0.1,  0.1111},
+      { 0.2,  0.2496},
+      { 0.3,  0.4251},
+      { 0.4,  0.6496},
+      { 0.5,  0.9375},
+      { 0.6,  1.3056},
+      { 0.7,  1.7731},
+      { 0.8,  2.3616},
+      { 0.9,  3.0951},
+      { 1.0,  4.0000},
+  };
+
   auto numberGenerator1 = make_unique<MinimalNumberGenerator>();
   auto numberGenerator2 = make_unique<MinimalNumberGenerator>();
   auto numberGenerator3 = make_unique<MinimalNumberGenerator>();
@@ -56,7 +81,7 @@ int main(int argc, char* argv[]) {
 
   RandomInitializer initializer(move(numberGenerator4), 200);
 
-  auto evaluator = make_unique<MathEvaluator>(mapper);
+  auto evaluator = make_unique<MathEvaluator>(inputsOutputs, mapper);
   auto evaluationDriver = make_unique<SingleThreadDriver>(move(evaluator));
   auto logger = make_unique<NullLogger>();
 
@@ -68,7 +93,7 @@ int main(int argc, char* argv[]) {
     return currentPopulation.number() >= 101 || currentPopulation.bestFitness() < 0.00001;
   });
 
-  cout << "result: " << result.getFitness() << " : " << result.serialize(*mapper) << endl;
+  cout << "result\t" << to_string(result.getFitness()) << "\t" << result.serialize(*mapper) << endl;
 
   return 0;
 }
