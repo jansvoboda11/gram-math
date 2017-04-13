@@ -7,7 +7,7 @@
 using namespace gram;
 using namespace std;
 
-MathEvaluator::MathEvaluator(vector<pair<double, double>> inputsOutputs, shared_ptr<gram::ContextFreeMapper> mapper)
+MathEvaluator::MathEvaluator(vector<pair<double, double>> inputsOutputs, shared_ptr<ContextFreeMapper> mapper)
     : inputsOutputs(inputsOutputs), mapper(mapper) {
   //
 }
@@ -48,6 +48,6 @@ double MathEvaluator::evaluate(Individual& individual) {
   return fitness;
 }
 
-std::unique_ptr<MultiThreadEvaluator> MathEvaluator::clone() {
+unique_ptr<MultiThreadEvaluator> MathEvaluator::clone() {
   return make_unique<MathEvaluator>(inputsOutputs, mapper);
 }
