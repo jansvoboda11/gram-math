@@ -8,7 +8,7 @@
 #include <gram/population/initializer/RandomInitializer.h>
 #include <gram/population/selector/TournamentSelector.h>
 #include <gram/util/logger/NullLogger.h>
-#include <gram/util/number_generator/MinimalNumberGenerator.h>
+#include <gram/util/number_generator/XorShiftNumberGenerator.h>
 #include <gram/Evolution.h>
 
 #include "MathEvaluator.h"
@@ -20,59 +20,60 @@ int main() {
 //  <expr> ::= "(" <expr> <op> <expr> ")" | <var>
 //  <op> ::= "+" | "-" | "*"
 //  <var> ::= "x" | "1"
-  auto expr = make_shared<Rule>("expr");
-  auto op = make_shared<Rule>("op");
-  auto var = make_shared<Rule>("var");
+  auto expr = make_unique<Rule>("expr");
+  auto op = make_unique<Rule>("op");
+  auto var = make_unique<Rule>("var");
 
-  auto exprNonTerminal = make_shared<NonTerminal>(expr);
-  auto opNonTerminal = make_shared<NonTerminal>(op);
-  auto varNonTerminal = make_shared<NonTerminal>(var);
+  auto exprNonTerminal1 = make_unique<NonTerminal>(*expr);
+  auto exprNonTerminal2 = make_unique<NonTerminal>(*expr);
+  auto opNonTerminal = make_unique<NonTerminal>(*op);
+  auto varNonTerminal = make_unique<NonTerminal>(*var);
 
-  auto leftBracket = make_shared<Terminal>("(");
-  auto rightBracket = make_shared<Terminal>(")");
-  auto plus = make_shared<Terminal>("+");
-  auto minus = make_shared<Terminal>("-");
-  auto asterisk = make_shared<Terminal>("*");
-  auto x = make_shared<Terminal>("x");
-  auto one = make_shared<Terminal>("1");
+  auto leftBracket = make_unique<Terminal>("(");
+  auto rightBracket = make_unique<Terminal>(")");
+  auto plus = make_unique<Terminal>("+");
+  auto minus = make_unique<Terminal>("-");
+  auto asterisk = make_unique<Terminal>("*");
+  auto x = make_unique<Terminal>("x");
+  auto one = make_unique<Terminal>("1");
 
-  auto exprOption1 = make_shared<Option>();
-  auto exprOption2 = make_shared<Option>();
-  auto opOption1 = make_shared<Option>();
-  auto opOption2 = make_shared<Option>();
-  auto opOption3 = make_shared<Option>();
-  auto varOption1 = make_shared<Option>();
-  auto varOption2 = make_shared<Option>();
+  auto exprOption1 = make_unique<Option>();
+  auto exprOption2 = make_unique<Option>();
+  auto opOption1 = make_unique<Option>();
+  auto opOption2 = make_unique<Option>();
+  auto opOption3 = make_unique<Option>();
+  auto varOption1 = make_unique<Option>();
+  auto varOption2 = make_unique<Option>();
 
-  expr->addOption(exprOption1);
-  expr->addOption(exprOption2);
+  exprOption1->addTerminal(move(leftBracket));
+  exprOption1->addNonTerminal(move(exprNonTerminal1));
+  exprOption1->addNonTerminal(move(opNonTerminal));
+  exprOption1->addNonTerminal(move(exprNonTerminal2));
+  exprOption1->addTerminal(move(rightBracket));
 
-  op->addOption(opOption1);
-  op->addOption(opOption2);
-  op->addOption(opOption3);
+  exprOption2->addNonTerminal(move(varNonTerminal));
 
-  var->addOption(varOption1);
-  var->addOption(varOption2);
+  opOption1->addTerminal(move(plus));
+  opOption2->addTerminal(move(minus));
+  opOption3->addTerminal(move(asterisk));
 
-  exprOption1->addTerminal(leftBracket);
-  exprOption1->addNonTerminal(exprNonTerminal);
-  exprOption1->addNonTerminal(opNonTerminal);
-  exprOption1->addNonTerminal(exprNonTerminal);
-  exprOption1->addTerminal(rightBracket);
+  varOption1->addTerminal(move(x));
+  varOption2->addTerminal(move(one));
 
-  exprOption2->addNonTerminal(varNonTerminal);
+  expr->addOption(move(exprOption1));
+  expr->addOption(move(exprOption2));
 
-  opOption1->addTerminal(plus);
-  opOption2->addTerminal(minus);
-  opOption3->addTerminal(asterisk);
+  op->addOption(move(opOption1));
+  op->addOption(move(opOption2));
+  op->addOption(move(opOption3));
 
-  varOption1->addTerminal(x);
-  varOption2->addTerminal(one);
+  var->addOption(move(varOption1));
+  var->addOption(move(varOption2));
 
   auto grammar = make_shared<ContextFreeGrammar>();
-  grammar->addRule(expr);
-  grammar->addRule(op);
-  grammar->addRule(var);
+  grammar->addRule(move(expr));
+  grammar->addRule(move(op));
+  grammar->addRule(move(var));
 
 //  y = x^4 + x^3 + x^2 + x
   vector<pair<double, double>> inputsOutputs{
@@ -99,11 +100,11 @@ int main() {
       { 1.0,  4.0000},
   };
 
-  auto numberGenerator1 = make_unique<MinimalNumberGenerator>();
-  auto numberGenerator2 = make_unique<MinimalNumberGenerator>();
-  auto numberGenerator3 = make_unique<MinimalNumberGenerator>();
-  auto numberGenerator4 = make_unique<MinimalNumberGenerator>();
-  auto numberGenerator5 = make_unique<MinimalNumberGenerator>();
+  auto numberGenerator1 = make_unique<XorShiftNumberGenerator>();
+  auto numberGenerator2 = make_unique<XorShiftNumberGenerator>();
+  auto numberGenerator3 = make_unique<XorShiftNumberGenerator>();
+  auto numberGenerator4 = make_unique<XorShiftNumberGenerator>();
+  auto numberGenerator5 = make_unique<XorShiftNumberGenerator>();
   auto stepGenerator = make_unique<BernoulliDistributionStepGenerator>(0.1, move(numberGenerator5));
 
   auto selector = make_unique<TournamentSelector>(5, move(numberGenerator1));
