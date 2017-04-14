@@ -128,7 +128,7 @@ int main() {
     return currentPopulation.number() >= 101 || currentPopulation.bestFitness() < 0.00001;
   });
 
-  cout << "result\t" << to_string(result.getFitness()) << "\t" << result.serialize(*mapper) << endl;
+//  cout << "result\t" << to_string(result.getFitness()) << "\t" << result.serialize(*mapper) << endl;
 
   return 0;
 }
