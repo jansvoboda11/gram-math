@@ -8,10 +8,10 @@
 #include <gram/population/reproducer/PassionateReproducer.h>
 #include <gram/population/selector/TournamentSelector.h>
 #include <gram/random/number_generator/XorShiftNumberGenerator.h>
-#include <gram/util/logger/NullLogger.h>
 #include <gram/Evolution.h>
 
 #include "MathEvaluator.h"
+#include "StreamLogger.h"
 
 using namespace gram;
 using namespace std;
@@ -118,7 +118,7 @@ int main() {
 
   auto evaluator = make_unique<MathEvaluator>(inputsOutputs, mapper);
   auto evaluationDriver = make_unique<SingleThreadDriver>(move(evaluator));
-  auto logger = make_unique<NullLogger>();
+  auto logger = make_unique<StreamLogger>(cout, mapper);
 
   Evolution evolution(move(evaluationDriver), move(logger));
 
@@ -127,8 +127,6 @@ int main() {
   Individual result = evolution.run(population, [](Population& currentPopulation) -> bool {
     return currentPopulation.generationNumber() >= 101 || currentPopulation.bestFitness() < 0.00001;
   });
-
-//  cout << "result\t" << to_string(result.fitness()) << "\t" << result.serialize(*mapper) << endl;
 
   return 0;
 }

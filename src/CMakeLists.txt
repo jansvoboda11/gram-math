@@ -6,6 +6,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
 add_executable(gram-math
         ../lib/tinyexpr/src/tinyexpr/tinyexpr.c
         ../lib/tinyexpr/src/tinyexpr/tinyexpr.h
+        StreamLogger.cpp
+        StreamLogger.h
         MathEvaluator.cpp
         MathEvaluator.h
         main.cpp
