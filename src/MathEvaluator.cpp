@@ -10,8 +10,14 @@ MathEvaluator::MathEvaluator(vector<pair<double, double>> inputsOutputs, shared_
   //
 }
 
-double MathEvaluator::evaluate(Individual& individual) {
-  string program = individual.serialize(*mapper);
+double MathEvaluator::evaluate(const Genotype& genotype) noexcept {
+  string program;
+
+  try {
+    program = mapper->map(genotype);
+  } catch (...) {
+    return 1000;
+  }
 
   double& fitness = phenotypeCache[program];
 
@@ -44,8 +50,4 @@ double MathEvaluator::evaluate(Individual& individual) {
   te_free(expression);
 
   return fitness;
-}
-
-unique_ptr<MultiThreadEvaluator> MathEvaluator::clone() {
-  return make_unique<MathEvaluator>(inputsOutputs, mapper);
 }

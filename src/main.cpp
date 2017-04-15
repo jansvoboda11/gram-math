@@ -1,14 +1,14 @@
 #include <iostream>
 
-#include <gram/evaluation/driver/MultiThreadDriver.h>
 #include <gram/evaluation/driver/SingleThreadDriver.h>
 #include <gram/individual/crossover/OnePointCrossover.h>
 #include <gram/individual/mutation/FastCodonMutation.h>
 #include <gram/language/mapper/ContextFreeMapper.h>
 #include <gram/population/initializer/RandomInitializer.h>
+#include <gram/population/reproducer/PassionateReproducer.h>
 #include <gram/population/selector/TournamentSelector.h>
+#include <gram/random/number_generator/XorShiftNumberGenerator.h>
 #include <gram/util/logger/NullLogger.h>
-#include <gram/util/number_generator/XorShiftNumberGenerator.h>
 #include <gram/Evolution.h>
 
 #include "MathEvaluator.h"
@@ -110,7 +110,7 @@ int main() {
   auto selector = make_unique<TournamentSelector>(5, move(numberGenerator1));
   auto mutation = make_unique<FastCodonMutation>(move(stepGenerator), move(numberGenerator2));
   auto crossover = make_unique<OnePointCrossover>(move(numberGenerator3));
-  auto reproducer = make_shared<Reproducer>(move(selector), move(crossover), move(mutation));
+  auto reproducer = make_shared<PassionateReproducer>(move(selector), move(crossover), move(mutation));
 
   auto mapper = make_shared<ContextFreeMapper>(grammar, 3);
 
@@ -125,10 +125,10 @@ int main() {
   Population population = initializer.initialize(500, reproducer);
 
   Individual result = evolution.run(population, [](Population& currentPopulation) -> bool {
-    return currentPopulation.number() >= 101 || currentPopulation.bestFitness() < 0.00001;
+    return currentPopulation.generationNumber() >= 101 || currentPopulation.bestFitness() < 0.00001;
   });
 
-//  cout << "result\t" << to_string(result.getFitness()) << "\t" << result.serialize(*mapper) << endl;
+//  cout << "result\t" << to_string(result.fitness()) << "\t" << result.serialize(*mapper) << endl;
 
   return 0;
 }
