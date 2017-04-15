@@ -1,10 +1,10 @@
 #ifndef GRAM_MATH_STREAM_LOGGER
 #define GRAM_MATH_STREAM_LOGGER
 
+#include <gram/language/mapper/ContextFreeMapper.h>
 #include <gram/util/logger/Logger.h>
 
 #include <ostream>
-#include <gram/language/mapper/ContextFreeMapper.h>
 
 class StreamLogger : public gram::Logger {
  public:

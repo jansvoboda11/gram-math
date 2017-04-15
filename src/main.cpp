@@ -16,10 +16,48 @@
 using namespace gram;
 using namespace std;
 
+shared_ptr<ContextFreeGrammar> getGrammar();
+vector<pair<double, double>> getInputsOutputs();
+
 int main() {
+  auto grammar = getGrammar();
+  auto inputsOutputs = getInputsOutputs();
+
+  auto numberGenerator1 = make_unique<XorShiftNumberGenerator>();
+  auto numberGenerator2 = make_unique<XorShiftNumberGenerator>();
+  auto numberGenerator3 = make_unique<XorShiftNumberGenerator>();
+  auto numberGenerator4 = make_unique<XorShiftNumberGenerator>();
+  auto numberGenerator5 = make_unique<XorShiftNumberGenerator>();
+  auto stepGenerator = make_unique<BernoulliDistributionStepGenerator>(0.1, move(numberGenerator5));
+
+  auto selector = make_unique<TournamentSelector>(5, move(numberGenerator1));
+  auto mutation = make_unique<FastCodonMutation>(move(stepGenerator), move(numberGenerator2));
+  auto crossover = make_unique<OnePointCrossover>(move(numberGenerator3));
+  auto reproducer = make_shared<PassionateReproducer>(move(selector), move(crossover), move(mutation));
+
+  auto mapper = make_shared<ContextFreeMapper>(grammar, 3);
+
+  RandomInitializer initializer(move(numberGenerator4), 200);
+
+  auto evaluator = make_unique<MathEvaluator>(inputsOutputs, mapper);
+  auto evaluationDriver = make_unique<SingleThreadDriver>(move(evaluator));
+  auto logger = make_unique<StreamLogger>(cout, mapper);
+
+  Evolution evolution(move(evaluationDriver), move(logger));
+
+  Population population = initializer.initialize(500, reproducer);
+
+  Individual result = evolution.run(population, [](Population& currentPopulation) -> bool {
+    return currentPopulation.generationNumber() >= 101 || currentPopulation.bestFitness() < 0.00001;
+  });
+
+  return 0;
+}
+
 //  <expr> ::= "(" <expr> <op> <expr> ")" | <var>
 //  <op> ::= "+" | "-" | "*"
 //  <var> ::= "x" | "1"
+shared_ptr<ContextFreeGrammar> getGrammar() {
   auto expr = make_unique<Rule>("expr");
   auto op = make_unique<Rule>("op");
   auto var = make_unique<Rule>("var");
@@ -75,8 +113,12 @@ int main() {
   grammar->addRule(move(op));
   grammar->addRule(move(var));
 
+  return grammar;
+}
+
 //  y = x^4 + x^3 + x^2 + x
-  vector<pair<double, double>> inputsOutputs{
+vector<pair<double, double>> getInputsOutputs() {
+  return vector<pair<double, double>>({
       {-1.0,  0.0000},
       {-0.9, -0.1629},
       {-0.8, -0.2624},
@@ -98,35 +140,5 @@ int main() {
       { 0.8,  2.3616},
       { 0.9,  3.0951},
       { 1.0,  4.0000},
-  };
-
-  auto numberGenerator1 = make_unique<XorShiftNumberGenerator>();
-  auto numberGenerator2 = make_unique<XorShiftNumberGenerator>();
-  auto numberGenerator3 = make_unique<XorShiftNumberGenerator>();
-  auto numberGenerator4 = make_unique<XorShiftNumberGenerator>();
-  auto numberGenerator5 = make_unique<XorShiftNumberGenerator>();
-  auto stepGenerator = make_unique<BernoulliDistributionStepGenerator>(0.1, move(numberGenerator5));
-
-  auto selector = make_unique<TournamentSelector>(5, move(numberGenerator1));
-  auto mutation = make_unique<FastCodonMutation>(move(stepGenerator), move(numberGenerator2));
-  auto crossover = make_unique<OnePointCrossover>(move(numberGenerator3));
-  auto reproducer = make_shared<PassionateReproducer>(move(selector), move(crossover), move(mutation));
-
-  auto mapper = make_shared<ContextFreeMapper>(grammar, 3);
-
-  RandomInitializer initializer(move(numberGenerator4), 200);
-
-  auto evaluator = make_unique<MathEvaluator>(inputsOutputs, mapper);
-  auto evaluationDriver = make_unique<SingleThreadDriver>(move(evaluator));
-  auto logger = make_unique<StreamLogger>(cout, mapper);
-
-  Evolution evolution(move(evaluationDriver), move(logger));
-
-  Population population = initializer.initialize(500, reproducer);
-
-  Individual result = evolution.run(population, [](Population& currentPopulation) -> bool {
-    return currentPopulation.generationNumber() >= 101 || currentPopulation.bestFitness() < 0.00001;
   });
-
-  return 0;
-}
+};
