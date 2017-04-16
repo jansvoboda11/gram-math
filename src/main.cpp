@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <gram/evaluation/driver/SingleThreadDriver.h>
+#include <gram/individual/comparer/LowFitnessComparer.h>
 #include <gram/individual/crossover/OnePointCrossover.h>
 #include <gram/individual/mutation/FastCodonMutation.h>
 #include <gram/language/mapper/ContextFreeMapper.h>
@@ -20,6 +21,21 @@ shared_ptr<ContextFreeGrammar> getGrammar();
 vector<pair<double, double>> getInputsOutputs();
 
 int main() {
+  unsigned long populationSize = 500;
+  unsigned long genotypeLength = 200;
+  unsigned long wrappingsLimit = 3;
+  unsigned long tournamentSize = 5;
+  double mutationProbability = 0.1;
+  unsigned long generationsLimit = 101;
+  double sufficientFitness = 0.00001;
+
+  auto frontEndComparer = make_shared<LowFitnessComparer>();
+
+  std::function<bool(Population&)> successCondition = [=](Population& currentPopulation) -> bool {
+    return currentPopulation.generationNumber() >= generationsLimit
+        || currentPopulation.bestFitness(*frontEndComparer) < sufficientFitness;
+  };
+
   auto grammar = getGrammar();
   auto inputsOutputs = getInputsOutputs();
 
@@ -28,28 +44,27 @@ int main() {
   auto numberGenerator3 = make_unique<XorShiftNumberGenerator>();
   auto numberGenerator4 = make_unique<XorShiftNumberGenerator>();
   auto numberGenerator5 = make_unique<XorShiftNumberGenerator>();
-  auto stepGenerator = make_unique<BernoulliDistributionStepGenerator>(0.1, move(numberGenerator5));
+  auto stepGenerator = make_unique<BernoulliDistributionStepGenerator>(mutationProbability, move(numberGenerator5));
 
-  auto selector = make_unique<TournamentSelector>(5, move(numberGenerator1));
+  auto comparer = make_unique<LowFitnessComparer>();
+  auto selector = make_unique<TournamentSelector>(tournamentSize, move(numberGenerator1), move(comparer));
   auto mutation = make_unique<FastCodonMutation>(move(stepGenerator), move(numberGenerator2));
   auto crossover = make_unique<OnePointCrossover>(move(numberGenerator3));
   auto reproducer = make_shared<PassionateReproducer>(move(selector), move(crossover), move(mutation));
 
-  auto mapper = make_shared<ContextFreeMapper>(grammar, 3);
+  auto mapper = make_shared<ContextFreeMapper>(grammar, wrappingsLimit);
 
-  RandomInitializer initializer(move(numberGenerator4), 200);
+  RandomInitializer initializer(move(numberGenerator4), genotypeLength);
 
   auto evaluator = make_unique<MathEvaluator>(inputsOutputs, mapper);
   auto evaluationDriver = make_unique<SingleThreadDriver>(move(evaluator));
-  auto logger = make_unique<StreamLogger>(cout, mapper);
+  auto logger = make_unique<StreamLogger>(cout, frontEndComparer, mapper);
 
   Evolution evolution(move(evaluationDriver), move(logger));
 
-  Population population = initializer.initialize(500, reproducer);
+  Population population = initializer.initialize(populationSize, reproducer);
 
-  Individual result = evolution.run(population, [](Population& currentPopulation) -> bool {
-    return currentPopulation.generationNumber() >= 101 || currentPopulation.bestFitness() < 0.00001;
-  });
+  Population result = evolution.run(population, successCondition);
 
   return 0;
 }
