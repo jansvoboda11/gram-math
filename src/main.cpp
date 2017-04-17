@@ -5,7 +5,7 @@
 #include <gram/evaluation/driver/SingleThreadDriver.h>
 #include <gram/individual/comparer/LowFitnessComparer.h>
 #include <gram/individual/crossover/OnePointCrossover.h>
-#include <gram/individual/mutation/BernoulliDistributionStepGenerator.h>
+#include <gram/individual/mutation/BernoulliStepGenerator.h>
 #include <gram/individual/mutation/FastCodonMutation.h>
 #include <gram/language/mapper/ContextFreeMapper.h>
 #include <gram/population/initializer/RandomInitializer.h>
@@ -47,7 +47,7 @@ int main() {
   auto numberGenerator3 = make_unique<XorShiftNumberGenerator>();
   auto numberGenerator4 = make_unique<XorShiftNumberGenerator>();
   auto numberGenerator5 = make_unique<XorShiftNumberGenerator>();
-  auto stepGenerator = make_unique<BernoulliDistributionStepGenerator>(mutationProbability, move(numberGenerator5));
+  auto stepGenerator = make_unique<BernoulliStepGenerator>(mutationProbability, move(numberGenerator5));
 
   auto comparer = make_unique<LowFitnessComparer>();
   auto selector = make_unique<TournamentSelector>(tournamentSize, move(numberGenerator1), move(comparer));
