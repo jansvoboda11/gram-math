@@ -25,7 +25,7 @@ int main() {
   unsigned long genotypeLength = 200;
   unsigned long wrappingsLimit = 3;
   unsigned long tournamentSize = 5;
-  double mutationProbability = 0.1;
+  Probability mutationProbability = Probability(0.1);
   unsigned long generationsLimit = 101;
   double sufficientFitness = 0.00001;
 
