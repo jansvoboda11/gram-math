@@ -8,8 +8,8 @@
 #include <gram/individual/mutation/BernoulliStepGenerator.h>
 #include <gram/individual/mutation/FastCodonMutation.h>
 #include <gram/language/mapper/ContextFreeMapper.h>
-#include <gram/population/initializer/RandomInitializer.h>
 #include <gram/population/Population.h>
+#include <gram/population/initializer/RandomInitializer.h>
 #include <gram/population/reproducer/PassionateReproducer.h>
 #include <gram/population/selector/TournamentSelector.h>
 #include <gram/random/number_generator/XorShiftNumberGenerator.h>
