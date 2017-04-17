@@ -1,6 +1,12 @@
 #include "MathEvaluator.h"
 
+#include <string>
 #include <tinyexpr.h>
+#include <utility>
+
+#include <gram/evaluation/Evaluator.h>
+#include <gram/individual/Genotype.h>
+#include <gram/language/mapper/ContextFreeMapper.h>
 
 using namespace gram;
 using namespace std;

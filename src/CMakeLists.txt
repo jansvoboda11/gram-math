@@ -4,11 +4,11 @@ include_directories(../lib/tinyexpr/src/tinyexpr)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
 
 add_executable(gram-math
-        StreamLogger.cpp
-        StreamLogger.h
+        main.cpp
         MathEvaluator.cpp
         MathEvaluator.h
-        main.cpp
+        StreamLogger.cpp
+        StreamLogger.h
         )
 
 add_dependencies(gram-math gram tinyexpr)

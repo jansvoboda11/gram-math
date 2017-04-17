@@ -1,5 +1,15 @@
 #include "StreamLogger.h"
 
+#include <memory>
+#include <ostream>
+#include <string>
+
+#include <gram/individual/Individual.h>
+#include <gram/individual/comparer/IndividualComparer.h>
+#include <gram/language/mapper/ContextFreeMapper.h>
+#include <gram/population/Population.h>
+#include <gram/util/logger/Logger.h>
+
 using namespace gram;
 using namespace std;
 

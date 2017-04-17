@@ -1,7 +1,12 @@
 #ifndef GRAM_MATH_EVALUATOR
 #define GRAM_MATH_EVALUATOR
 
+#include <memory>
+#include <vector>
+#include <utility>
+
 #include <gram/evaluation/Evaluator.h>
+#include <gram/individual/Genotype.h>
 #include <gram/language/mapper/ContextFreeMapper.h>
 
 class MathEvaluator : public gram::Evaluator {

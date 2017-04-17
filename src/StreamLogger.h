@@ -1,11 +1,13 @@
 #ifndef GRAM_MATH_STREAM_LOGGER
 #define GRAM_MATH_STREAM_LOGGER
 
+#include <memory>
+#include <ostream>
+
 #include <gram/individual/comparer/IndividualComparer.h>
 #include <gram/language/mapper/ContextFreeMapper.h>
+#include <gram/population/Population.h>
 #include <gram/util/logger/Logger.h>
-
-#include <ostream>
 
 class StreamLogger : public gram::Logger {
  public:
