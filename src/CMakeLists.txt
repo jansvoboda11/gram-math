@@ -1,7 +1,7 @@
 include_directories(../lib/gram/src/gram/include)
 include_directories(../lib/tinyexpr/src/tinyexpr)
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 add_executable(gram-math
         main.cpp
